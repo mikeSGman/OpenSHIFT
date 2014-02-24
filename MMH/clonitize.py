@@ -43,6 +43,13 @@ def my_bar(current, total, fucking_useless):
     percentage = (float(current) * 100.0) / total
     sys.stdout.write("\rGrabbing " + os.path.basename(match) + ": %" + "{0:05.2f} ".format(percentage))
 
+# tarfile creation progress function
+def asshole(tarinfo):
+    size = os.path.getsize(archive_file_path)
+    size = size / (1024 * 1024)
+    sys.stdout.write("\r" + str(size) + " MB")
+    return tarinfo
+
 # process command line arguments
 create_archive = False
 
@@ -58,7 +65,7 @@ github_url = "https://api.github.com/orgs/" + org + "/repos"
 local_storage_dir = os.path.expanduser('~') + '/github/' + org
 
 # archive file name (optional)
-archive_file_path = local_storage_dir + "/" + org + ".tar"
+archive_file_path = local_storage_dir + "/" + org + ".tar.bz2"
 
 if not os.path.exists(local_storage_dir):
     print "Creating " + local_storage_dir
@@ -69,7 +76,6 @@ print "Getting list of GitHub repositories for Organization: " + org
 response = requests.get(github_url)
 remote_repos = json.loads(response.content)
 
-#regex = re.compile(r'(?:wget|curl)(?:\s+)(?:https?://.*)(?:\.tar.gz|\.tgz|\.zip)(?:.*\n)')
 regex = re.compile(r'(?:wget|curl)(?:\s+)((?:https?://.*)(?:\.tar.gz|\.tgz|\.zip.*))(?:\n)')
 
 # process each repo in the org
@@ -126,12 +132,11 @@ for remote_repo in remote_repos:
                 file_name = os.path.basename(match)
                 if os.path.exists(file_name):
                     os.remove(file_name)
-                wget.download(match, bar=my_bar)
+                #wget.download(match, bar=my_bar)
                 #wget.download(match)
                 print "" # wget doesnt print a trailing newline
 
 if create_archive:
-    print
-    print "Creating " + archive_file_path + " transfer."
-    with tarfile.open(archive_file_path, "w") as tar:
-        tar.add(local_storage_dir, arcname=os.path.basename(local_storage_dir))
+    print "Creating " + archive_file_path
+    with tarfile.open(archive_file_path, "w:bz2") as tar:
+        tar.add(local_storage_dir, arcname=os.path.basename(local_storage_dir), filter=asshole)
