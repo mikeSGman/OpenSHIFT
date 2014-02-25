@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
+from os import walk
 from git import Repo
 from git import NoSuchPathError
-from os import walk
 
-import json
 import os
 import re
-import requests
 import sys
-import tarfile
 import wget
+import shutil
+import json
+import tarfile
+import requests
 
 ################################################
 # Getting started notes
@@ -30,7 +31,8 @@ import wget
 ################################################
 
 # utility function to provide package exclusions
-exclusions = [ 'origin-server', 'test-pull', 'openshift.github.com' ]
+exclusions = [ 'origin-server', 'test-pull', 'openshift.github.com',
+        'origin-dev-tools', 'rhc' ]
 
 def exclude(url):
     for exclusion in exclusions:
@@ -64,13 +66,21 @@ github_url = "https://api.github.com/orgs/" + org + "/repos"
 # where we will store the cloned repos
 local_storage_dir = os.path.expanduser('~') + '/github/' + org
 
+# where we'll store centrallized local gems for export
+local_gem_repo = local_storage_dir + "/gems/"
+
 # archive file name (optional)
 archive_file_path = local_storage_dir + "/" + org + ".tar.bz2"
 
 if not os.path.exists(local_storage_dir):
     print "Creating " + local_storage_dir
     os.makedirs(local_storage_dir)
-
+"""
+# ruby gems local store
+if not os.path.exists(local_gem_repo):
+    print "Creating" + local_gem_repo
+    os.makedirs(local_gem_repo)
+"""
 # get the list of repos for the org
 print "Getting list of GitHub repositories for Organization: " + org
 response = requests.get(github_url)
@@ -120,7 +130,16 @@ for remote_repo in remote_repos:
             if os.path.islink(file_path) or '.git' in dirpath:
                 continue
 
-            #print "looking at " + file_path
+            if file == 'Gemfile':
+                os.chdir(os.path.dirname(file_path))
+                if os.path.exists('Gemfile.lock'):
+                    os.remove('Gemfile.lock')
+                if not os.path.exists(local_gem_repo):
+                    os.mkdir(local_gem_repo)
+                os.system('bundle install --path=' + local_gem_repo)
+                if os.path.exists(local_repo_storage_dir + '/' + 'vendor'):
+                    shutil.rmtree(local_repo_storage_dir + '/' + 'vendor')
+
             with open(dirpath + "/" + file) as f:
                 file_content = f.read()
 
@@ -132,7 +151,7 @@ for remote_repo in remote_repos:
                 file_name = os.path.basename(match)
                 if os.path.exists(file_name):
                     os.remove(file_name)
-                #wget.download(match, bar=my_bar)
+                wget.download(match, bar=my_bar)
                 #wget.download(match)
                 print "" # wget doesnt print a trailing newline
 
