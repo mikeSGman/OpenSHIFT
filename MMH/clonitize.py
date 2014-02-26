@@ -75,12 +75,7 @@ archive_file_path = local_storage_dir + "/" + org + ".tar.bz2"
 if not os.path.exists(local_storage_dir):
     print "Creating " + local_storage_dir
     os.makedirs(local_storage_dir)
-"""
-# ruby gems local store
-if not os.path.exists(local_gem_repo):
-    print "Creating" + local_gem_repo
-    os.makedirs(local_gem_repo)
-"""
+
 # get the list of repos for the org
 print "Getting list of GitHub repositories for Organization: " + org
 response = requests.get(github_url)
