@@ -94,7 +94,7 @@ for remote_repo in remote_repos:
     # get the "clone" URL
     remote_repo_url = remote_repo['ssh_url']
     local_repo_storage_dir = local_storage_dir + "/" + remote_repo['name']
-    local_repo_resource_storage_dir = local_repo_storage_dir + ".resources"
+    local_repo_resource_storage_dir = local_storage_dir + "/" + 'resources'
     repo_title = "[" + org + " / " + remote_repo['name'] + "]"
 
     if exclude(remote_repo_url):
@@ -130,16 +130,6 @@ for remote_repo in remote_repos:
             if os.path.islink(file_path) or '.git' in dirpath:
                 continue
 
-            if file == 'Gemfile':
-                os.chdir(os.path.dirname(file_path))
-                if os.path.exists('Gemfile.lock'):
-                    os.remove('Gemfile.lock')
-                if not os.path.exists(local_gem_repo):
-                    os.mkdir(local_gem_repo)
-                os.system('bundle install --path=' + local_gem_repo)
-                if os.path.exists(local_repo_storage_dir + '/' + 'vendor'):
-                    shutil.rmtree(local_repo_storage_dir + '/' + 'vendor')
-
             with open(dirpath + "/" + file) as f:
                 file_content = f.read()
 
@@ -154,6 +144,17 @@ for remote_repo in remote_repos:
                 wget.download(match, bar=my_bar)
                 #wget.download(match)
                 print "" # wget doesnt print a trailing newline
+
+            if file == 'Gemfile':
+                print "Found some gems that we'll need; lets get 'em!"
+                os.chdir(os.path.dirname(file_path))
+                if os.path.exists('Gemfile.lock'):
+                    os.remove('Gemfile.lock')
+                if not os.path.exists(local_gem_repo):
+                    os.mkdir(local_gem_repo)
+                os.system('bundle install --path=' + local_gem_repo)
+                if os.path.exists(local_repo_storage_dir + '/' + 'vendor'):
+                    shutil.rmtree(local_repo_storage_dir + '/' + 'vendor')
 
 if create_archive:
     print "Creating " + archive_file_path
