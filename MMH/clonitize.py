@@ -49,7 +49,7 @@ def my_bar(current, total, fucking_useless):
 def asshole(tarinfo):
     size = os.path.getsize(archive_file_path)
     size = size / (1024 * 1024)
-    sys.stdout.write("\r" + str(size) + " MB")
+    sys.stdout.write("\r" + str(size) + " MiB")
     return tarinfo
 
 # process command line arguments
