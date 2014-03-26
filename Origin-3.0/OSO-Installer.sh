@@ -105,7 +105,7 @@ restorecon -Rv /etc/yum.repos.d/
 
 buildEPELrepoIfNeeded(){
   if [ "$(grep -i "Red Hat Enterprise Linux" /etc/redhat-release)" ] || [ "$(grep -i "CentOS" /etc/redhat-release)" ]; then
-    yum -y localinstall http://mirror.steadfast.net/epel/6/i386/epel-release-6-8.noarch.rpm
+    yum -y localinstall http://mirror.steadfast.net/epel/6/x86_64/epel-release-6-8.noarch.rpm
   fi
 }
 
