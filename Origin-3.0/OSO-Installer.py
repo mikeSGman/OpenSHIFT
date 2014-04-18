@@ -108,8 +108,8 @@ def puppetStuff():
   if not os.path.exists("/etc/puppet/modules"):
     os.makedirs("/etc/puppet/modules")
   os.system("/sbin/restorecon -Rv /etc/puppet")
-  #os.system("/usr/bin/puppet module install openshift/openshift_origin")
-  os.system("git clone https://github.com/openshift/puppet-openshift_origin.git /etc/puppet/modules/openshift_origin")
+  os.system("/usr/bin/puppet module install openshift/openshift_origin")
+  #os.system("git clone https://github.com/openshift/puppet-openshift_origin.git /etc/puppet/modules/openshift_origin")
 
 def buildEPELrepoIfNeeded():
   if distro.find("Red Hat") >= 0 or distro.find("CentOS") >= 0:
